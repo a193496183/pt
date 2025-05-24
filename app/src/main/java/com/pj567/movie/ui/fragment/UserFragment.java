@@ -30,7 +30,6 @@ public class UserFragment extends BaseLazyFragment implements View.OnClickListen
     private TextView tvSearch;
     private TextView tvSetting;
     private TextView tvHistory;
-    private TextView tvReward;
     private TextView tvProjection;
     private RemoteDialog remoteDialog;
 
@@ -50,18 +49,15 @@ public class UserFragment extends BaseLazyFragment implements View.OnClickListen
         tvSearch = findViewById(R.id.tvSearch);
         tvSetting = findViewById(R.id.tvSetting);
         tvHistory = findViewById(R.id.tvHistory);
-        tvReward = findViewById(R.id.tvReward);
         tvProjection = findViewById(R.id.tvProjection);
         tvLive.setOnKeyListener(onKeyListener);
         tvSearch.setOnKeyListener(onKeyListener);
         tvSetting.setOnKeyListener(onKeyListener);
         tvHistory.setOnKeyListener(onKeyListener);
-        tvReward.setOnKeyListener(onKeyListener);
         tvLive.setOnClickListener(this);
         tvSearch.setOnClickListener(this);
         tvSetting.setOnClickListener(this);
         tvHistory.setOnClickListener(this);
-        tvReward.setOnClickListener(this);
         tvProjection.setOnClickListener(this);
     }
 
@@ -89,9 +85,7 @@ public class UserFragment extends BaseLazyFragment implements View.OnClickListen
             jumpActivity(SettingActivity.class);
         } else if (v.getId() == R.id.tvHistory) {
             jumpActivity(HistoryNewActivity.class);
-        } else if (v.getId() == R.id.tvReward) {
-            jumpActivity(RewardActivity.class);
-        } else if (v.getId() == R.id.tvProjection) {
+        }else if (v.getId() == R.id.tvProjection) {
             remoteDialog = new RemoteDialog().build(mContext);
             remoteDialog.show();
         }

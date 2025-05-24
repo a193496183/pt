@@ -13,6 +13,7 @@ import android.widget.Toast;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.lzy.okgo.OkGo;
 import com.lzy.okgo.callback.AbsCallback;
+import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.model.Response;
 import com.pj567.movie.R;
 import com.pj567.movie.api.ApiConfig;
@@ -34,6 +35,9 @@ import com.tv.leanback.VerticalGridView;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,6 +60,9 @@ public class SearchActivity extends BaseActivity {
     private int sourceIndex = 0;
     private String searchTitle = "";
     private int sourceTotal = 0;
+
+    public static final String searchPath = "/api.php/provide/vod/?ac=videolist&wd=";
+    public static final int maxPages = 3;
 
     @Override
     protected int getLayoutResID() {
@@ -92,6 +99,7 @@ public class SearchActivity extends BaseActivity {
                     Bundle bundle = new Bundle();
                     bundle.putInt("id", video.id);
                     bundle.putString("sourceUrl", video.api);
+                    bundle.putSerializable("data",video);
                     jumpActivity(DetailActivity.class, bundle);
                 }
             }
@@ -162,48 +170,103 @@ public class SearchActivity extends BaseActivity {
         List<SearchRequest> searchRequestList = ApiConfig.get().getSearchRequestList();
         String api = searchRequestList.get(sourceIndex).api;
         String sourceName = searchRequestList.get(sourceIndex).name;
-        OkGo.<String>get(searchRequestList.get(sourceIndex).api)
-                .params("wd", searchTitle)
+        String apiUrl = api + searchPath + searchTitle;    //翻页用"pg=10"，先不加
+        OkGo.<String>get(apiUrl)
                 .tag("search")
-                .execute(new AbsCallback<String>() {
-                    @Override
-                    public String convertResponse(okhttp3.Response response) throws Throwable {
-                        if (response.body() != null) {
-                            return response.body().string();
-                        } else {
-                            throw new IllegalStateException("网络请求错误");
-                        }
-                    }
-
+                .headers("User-Agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36")
+                .headers("Accept","application/json")
+                .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
-                        String xml = response.body();
-                        xml(xml, api, sourceName);
+                        try {
+                            JSONObject data = new JSONObject(response.body());
+
+                            xml(data,api,sourceName);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            //onApiComplete(new ArrayList<>());
+                        }
                     }
 
                     @Override
                     public void onError(Response<String> response) {
                         super.onError(response);
-                        searchData(null);
+                       /* String errorMsg = "API " + api.getName() + " 搜索失败: " +
+                                (response.getException() != null ? response.getException().getMessage() : "未知错误");
+                        showToast(errorMsg);
+                        onApiComplete(new ArrayList<>());*/
                     }
                 });
     }
 
-    private void xml(String xml, String api, String sourceName) {
+    private void xml(JSONObject source, String api, String sourceName) {
         try {
-            XStream xstream = new XStream(new DomDriver());//创建Xstram对象
-            xstream.autodetectAnnotations(true);
-            xstream.processAnnotations(AbsXml.class);
-            xstream.ignoreUnknownElements();
-            if (xml.contains("<year></year>")) {
-                xml = xml.replace("<year></year>", "<year>0</year>");
-            }
-            if (xml.contains("<state></state>")) {
-                xml = xml.replace("<state></state>", "<state>0</state>");
-            }
-            AbsXml data = (AbsXml) xstream.fromXML(xml);
+            JSONArray list = source.optJSONArray("list");
+            AbsXml data = new AbsXml();
+            data.movie = new Movie();
+            data.movie.page = source.optInt("page");
+            data.movie.pagecount = source.optInt("pagecount");
+            data.movie.pagesize = source.optInt("total");
+            data.movie.recordcount = source.optInt("limit");
+            data.movie.videoList = new ArrayList<>();
             data.api = api;
-            if (data.movie != null && data.movie.videoList != null) {
+            for (int i = 0; i < list.length(); i++) {
+                JSONObject videoJson = list.getJSONObject(i);
+                Movie.Video video = new Movie.Video();
+                video.last = videoJson.optString("vod_time");
+                video.id = videoJson.optInt("vod_id");
+                video.tid = videoJson.optInt("type_id");
+                video.name = videoJson.optString("vod_name");
+                video.type = videoJson.optString("type_name");
+                video.dt = videoJson.optString("dt");
+                video.pic = videoJson.optString("vod_pic");
+                video.lang = videoJson.optString("vod_lang");
+                video.area = videoJson.optString("vod_area");
+                video.year = videoJson.optInt("vod_year");
+                video.state = videoJson.optString("vod_status");
+                video.note = videoJson.optString("vod_blurb");
+                video.actor = videoJson.optString("vod_actor");
+                video.director = videoJson.optString("vod_director");
+                video.des = videoJson.optString("des");
+                video.api = videoJson.optString("api");
+                video.sourceName = videoJson.optString("source_name");
+                video.urlBean = new Movie.Video.UrlBean();
+                String infoListArray = videoJson.getString("vod_play_url");
+                if (!TextUtils.isEmpty(infoListArray)) {
+                    video.urlBean.infoList = new ArrayList<>();
+                    Movie.Video.UrlBean.UrlInfo urlInfo = new Movie.Video.UrlBean.UrlInfo();
+                    urlInfo.flag = "flag";
+                    urlInfo.urls = infoListArray;
+
+                    urlInfo.beanList = new ArrayList<>();
+                    String[] playSources = urlInfo.urls.split("\\$\\$\\$");
+
+                    // 提取第一个播放源的集数（通常为主要源）
+                    if (playSources.length > 0) {
+                        String mainSource = playSources[0];
+                        String[] episodeList = mainSource.split("#");
+
+                        // 从每个集数中提取URL
+                        for (String ep : episodeList) {
+                            String[] parts = ep.split("\\$");
+                            if (parts.length == 2) {
+                                String url = parts[1];
+                                if (url.startsWith("http://") || url.startsWith("https://")) {
+                                    urlInfo.beanList.add(new Movie.Video.UrlBean.UrlInfo.InfoBean(parts[0], parts[1]));
+                                }
+                            }
+                        }
+                    }
+
+                    video.urlBean.infoList.add(urlInfo);
+
+                }
+                video.api = api;
+                video.sourceName = sourceName;
+                data.movie.videoList.add(video);
+            }
+
+            /*if (data.movie != null && data.movie.videoList != null) {
                 for (Movie.Video video : data.movie.videoList) {
                     if (video.urlBean != null && video.urlBean.infoList != null) {
                         for (Movie.Video.UrlBean.UrlInfo urlInfo : video.urlBean.infoList) {
@@ -225,7 +288,7 @@ public class SearchActivity extends BaseActivity {
                     video.api = api;
                     video.sourceName = sourceName;
                 }
-            }
+            }*/
             searchData(data);
         } catch (Exception e) {
             searchData(null);

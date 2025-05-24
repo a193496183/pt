@@ -2,9 +2,19 @@
 apply from: "config.gradle"
 buildscript {
     repositories {
+        maven { url=uri("https://maven.aliyun.com/repository/google") }
+        maven { url=uri("https://maven.aliyun.com/repository/gradle-plugin") }
+        maven { url=uri("https://maven.aliyun.com/repository/public") }
+        maven { url=uri("https://mirrors.huaweicloud.com/repository/maven/") } // 华为云镜像
+        maven { url 'http://maven.aliyun.com/nexus/content/repositories/jcenter' }
         google()
+        mavenLocal()
+        mavenCentral()
         jcenter()
-        maven { url "https://jitpack.io" }
+        //修改前
+        //maven { url "https://jitpack.io" }
+        //修改后
+        maven { url "https://www.jitpack.io" }
     }
     dependencies {
         classpath "com.android.tools.build:gradle:4.0.0"
@@ -16,9 +26,19 @@ buildscript {
 
 allprojects {
     repositories {
+        maven { url=uri("https://maven.aliyun.com/repository/google") }
+        maven { url=uri("https://maven.aliyun.com/repository/gradle-plugin") }
+        maven { url=uri("https://maven.aliyun.com/repository/public") }
+        maven { url=uri("https://mirrors.huaweicloud.com/repository/maven/") } // 华为云镜像
+        maven { url 'http://maven.aliyun.com/nexus/content/repositories/jcenter' }
         google()
+        mavenLocal()
+        mavenCentral()
         jcenter()
-        maven { url "https://jitpack.io" }
+        //修改前
+        //maven { url "https://jitpack.io" }
+        //修改后
+        maven { url "https://www.jitpack.io" }
     }
 }
 

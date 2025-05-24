@@ -29,35 +29,35 @@ public class Movie implements Serializable {
 
     @XStreamAlias("video")
     public static class Video implements Serializable {
-        @XStreamAlias("last")//时间
+        @XStreamAlias("vod_time")//时间
         public String last;
-        @XStreamAlias("id")//内容id
+        @XStreamAlias("vod_id")//内容id
         public int id;
-        @XStreamAlias("tid")//父级id
+        @XStreamAlias("type_id")//父级id
         public int tid;
-        @XStreamAlias("name")//影片名称 <![CDATA[老爸当家]]>
+        @XStreamAlias("vod_name")//影片名称 <![CDATA[老爸当家]]>
         public String name;
-        @XStreamAlias("type")//类型名称
+        @XStreamAlias("type_name")//类型名称
         public String type;
         @XStreamAlias("dt")//视频分类 zuidam3u8,zuidall
         public String dt;
-        @XStreamAlias("pic")//图片
+        @XStreamAlias("vod_pic")//图片
         public String pic;
-        @XStreamAlias("lang")//语言
+        @XStreamAlias("vod_lang")//语言
         public String lang;
-        @XStreamAlias("area")//地区
+        @XStreamAlias("vod_area")//地区
         public String area;
-        @XStreamAlias("year")//年份
+        @XStreamAlias("vod_year")//年份
         public int year;
-        @XStreamAlias("state")
+        @XStreamAlias("vod_status")
         public String state;
-        @XStreamAlias("note")//描述集数或者影片信息<![CDATA[共40集]]>
+        @XStreamAlias("vod_blurb")//描述集数或者影片信息<![CDATA[共40集]]>
         public String note;
-        @XStreamAlias("actor")//演员<![CDATA[张国立,蒋欣,高鑫,曹艳艳,王维维,韩丹彤,孟秀,王新]]>
+        @XStreamAlias("vod_actor")//演员<![CDATA[张国立,蒋欣,高鑫,曹艳艳,王维维,韩丹彤,孟秀,王新]]>
         public String actor;
-        @XStreamAlias("director")//导演<![CDATA[陈国星]]>
+        @XStreamAlias("vod_director")//导演<![CDATA[陈国星]]>
         public String director;
-        @XStreamAlias("dl")
+        @XStreamAlias("vod_play_url")
         public UrlBean urlBean;
         @XStreamAlias("des")
         public String des;// <![CDATA[权来]

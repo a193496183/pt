@@ -26,12 +26,14 @@ public class SourceViewModel extends ViewModel {
     public MutableLiveData<AbsXml> listResult;
     public MutableLiveData<AbsXml> searchResult;
     public MutableLiveData<AbsXml> detailResult;
+    public MutableLiveData<Movie.Video> videoResult;
 
     public SourceViewModel() {
         sortResult = new MutableLiveData<>();
         listResult = new MutableLiveData<>();
         searchResult = new MutableLiveData<>();
         detailResult = new MutableLiveData<>();
+        videoResult = new MutableLiveData<>();
     }
 
     public void getSort() {

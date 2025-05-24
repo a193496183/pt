@@ -84,4 +84,5 @@ android {
 dependencies {
     implementation project(path: ':tvLibrary')
     annotationProcessor rootProject.ext.dependencies["room-compiler"]
+    implementation 'org.jsoup:jsoup:1.16.1' // 这里使用的是当前最新稳定版本，你也可以查看官网获取最新版本号
 }

@@ -21,6 +21,7 @@ import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.orhanobut.hawk.Hawk;
 import com.pj567.movie.R;
 import com.pj567.movie.api.ApiConfig;
+import com.pj567.movie.api.ApiHandler;
 import com.pj567.movie.base.BaseActivity;
 import com.pj567.movie.bean.PraseBean;
 import com.pj567.movie.ui.adapter.PraseAdapter;
@@ -48,6 +49,8 @@ public class PraseActivity extends BaseActivity {
     private int selected;
     private List<PraseBean> praseBeanList;
     private Map<String, Boolean> loadedUrls = new HashMap<>();
+    private boolean isSuccessParse = false;
+    private String sourceUrl;
 
     @Override
     protected int getLayoutResID() {
@@ -96,10 +99,13 @@ public class PraseActivity extends BaseActivity {
                                 }
                             }
                         }
-                        L.e("解析地址 = " + url);
-                        Bundle bundle = new Bundle();
-                        bundle.putString("playUrl", url);
-                        jumpActivity(ProjectionPlayActivity.class, bundle);
+                        if(!isSuccessParse) {
+                            L.e("解析地址 = " + url);
+                            Bundle bundle = new Bundle();
+                            bundle.putString("playUrl", url);
+                            jumpActivity(ProjectionPlayActivity.class, bundle);
+                            isSuccessParse = true;
+                        }
                         finish();
                     }
                 } catch (Exception e) {
@@ -167,7 +173,11 @@ public class PraseActivity extends BaseActivity {
         if (intent != null && intent.getExtras() != null) {
             Bundle bundle = intent.getExtras();
             html = bundle.getString("html");
-            mX5WebView.loadUrl(praseUrl + html);
+            sourceUrl = bundle.getString("sourceUrl");
+            //mX5WebView.loadUrl(praseUrl + html);
+            //mX5WebView.loadUrl(html);
+            ApiHandler apiHandler = new ApiHandler(this,sourceUrl);
+            apiHandler.parseUrl(html);
         }
 //        html = "https://tv.sohu.com/v/MjAxNTA4MTcvbjQxOTA4MzkxNi5zaHRtbA==.html";
 //        html = "https://m.iqiyi.com/v_irqqpk2p6c.html";

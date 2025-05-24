@@ -5,27 +5,27 @@
     android:padding="30pt">
 
     <TextView
-        android:id="@+id/tvLive"
-        android:layout_width="228pt"
-        android:layout_height="228pt"
-        android:background="@drawable/user_focus"
-        android:focusable="true"
-        android:focusableInTouchMode="true"
-        android:gravity="center"
-        android:text="直播"
-        android:textColor="@color/color_CCFFFFFF"
-        android:textSize="36pt" />
-
-    <TextView
         android:id="@+id/tvSearch"
         android:layout_width="228pt"
         android:layout_height="228pt"
-        android:layout_marginLeft="248pt"
         android:background="@drawable/user_focus"
         android:focusable="true"
         android:focusableInTouchMode="true"
         android:gravity="center"
         android:text="搜索"
+        android:textColor="@color/color_CCFFFFFF"
+        android:textSize="36pt" />
+
+    <TextView
+        android:id="@+id/tvLive"
+        android:layout_width="228pt"
+        android:layout_height="228pt"
+        android:background="@drawable/user_focus"
+        android:layout_marginLeft="248pt"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:gravity="center"
+        android:text="直播"
         android:textColor="@color/color_CCFFFFFF"
         android:textSize="36pt" />
 

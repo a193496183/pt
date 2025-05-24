@@ -5,6 +5,7 @@ import android.animation.AnimatorSet;
 import android.animation.IntEvaluator;
 import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
+import android.content.pm.ActivityInfo;
 import android.os.Handler;
 import android.view.KeyEvent;
 import android.view.View;
@@ -99,6 +100,7 @@ public class HomeActivity extends BaseActivity {
 
     @Override
     protected void init() {
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         EventBus.getDefault().register(this);
         initView();
         initViewModel();
@@ -204,8 +206,6 @@ public class HomeActivity extends BaseActivity {
                     }
                 } else if (keyCode == KeyEvent.KEYCODE_DPAD_LEFT && v.getId() == R.id.tvLive) {
                     return true;
-                } else if (keyCode == KeyEvent.KEYCODE_DPAD_RIGHT && v.getId() == R.id.tvReward) {
-                    return true;
                 }
             }
             return false;
@@ -234,7 +234,8 @@ public class HomeActivity extends BaseActivity {
     private void initData() {
         ControlManager.get().startServer();
         showLoading();
-        sourceViewModel.getSort();
+        //sourceViewModel.getSort();
+        sourceViewModel.sortResult.postValue(null);
         if (hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
             L.e("有");
         } else {

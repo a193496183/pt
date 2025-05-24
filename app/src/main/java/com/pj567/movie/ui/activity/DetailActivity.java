@@ -102,6 +102,7 @@ public class DetailActivity extends BaseActivity {
                     insertVod(sourceUrl, vodInfo);
                     if (vodInfo.isX5) {
                         bundle.putString("html", vodInfo.seriesList.get(vodInfo.playIndex).url);
+                        bundle.putString("sourceUrl",sourceUrl);
                         jumpActivity(PraseActivity.class, bundle);
                     } else {
                         bundle.putSerializable("VodInfo", vodInfo);
@@ -127,6 +128,7 @@ public class DetailActivity extends BaseActivity {
                     Bundle bundle = new Bundle();
                     if (vodInfo.isX5) {
                         bundle.putString("html", vodInfo.seriesList.get(vodInfo.playIndex).url);
+                        bundle.putString("sourceUrl",sourceUrl);
                         jumpActivity(PraseActivity.class, bundle);
                     } else {
                         bundle.putSerializable("VodInfo", vodInfo);
@@ -140,12 +142,52 @@ public class DetailActivity extends BaseActivity {
 
     private void initViewModel() {
         sourceViewModel = new ViewModelProvider(this).get(SourceViewModel.class);
-        sourceViewModel.detailResult.observe(this, new Observer<AbsXml>() {
+        /*sourceViewModel.detailResult.observe(this, new Observer<AbsXml>() {
             @Override
             public void onChanged(AbsXml absXml) {
                 if (absXml != null && absXml.movie != null && absXml.movie.videoList != null && absXml.movie.videoList.size() > 0) {
                     showSuccess();
                     mVideo = absXml.movie.videoList.get(0);
+                    vodInfo = new VodInfo();
+                    vodInfo.setVideo(mVideo);
+                    vodInfo.playIndex = Math.max(playIndex, 0);
+                    if (vodInfo.seriesList != null && vodInfo.seriesList.size() > playIndex && playIndex != -1) {
+                        vodInfo.seriesList.get(playIndex).selected = true;
+                    }
+                    seriesAdapter.setNewData(vodInfo.seriesList);
+                    mGridView.scrollToPosition(vodInfo.playIndex);
+                    tvName.setText(mVideo.name);
+                    tvYear.setText(Html.fromHtml(getHtml("年份：", String.valueOf(mVideo.year))));
+                    tvArea.setText(Html.fromHtml(getHtml("地区：", mVideo.area)));
+                    tvLang.setText(Html.fromHtml(getHtml("语言：", mVideo.lang)));
+                    tvType.setText(Html.fromHtml(getHtml("类型：", mVideo.type)));
+                    tvActor.setText(Html.fromHtml(getHtml("演员：", mVideo.actor)));
+                    tvDirector.setText(Html.fromHtml(getHtml("导演：", mVideo.director)));
+                    tvDes.setText(Html.fromHtml(getHtml("内容简介：", mVideo.des)));
+                    if (!TextUtils.isEmpty(mVideo.pic)) {
+                        Picasso.get()
+                                .load(mVideo.pic)
+                                .transform(new RoundTransformation(mVideo.pic)
+                                        .centerCorp(true)
+                                        .override(AutoSizeUtils.pt2px(mContext, 224), AutoSizeUtils.pt2px(mContext, 315))
+                                        .roundRadius(AutoSizeUtils.pt2px(mContext, 5), RoundTransformation.RoundType.ALL))
+                                .placeholder(R.drawable.error_all_loading)
+                                .error(R.drawable.error_all_loading)
+                                .into(ivThumb);
+                    } else {
+                        ivThumb.setImageResource(R.drawable.error_all_loading);
+                    }
+                } else {
+                    showEmpty();
+                }
+            }
+        });*/
+        sourceViewModel.videoResult.observe(this, new Observer<Movie.Video>() {
+            @Override
+            public void onChanged(Movie.Video video) {
+                if (video != null && video.urlBean != null && video.urlBean.infoList != null && !video.urlBean.infoList.isEmpty()) {
+                    showSuccess();
+                    mVideo = video;
                     vodInfo = new VodInfo();
                     vodInfo.setVideo(mVideo);
                     vodInfo.playIndex = Math.max(playIndex, 0);
@@ -192,13 +234,15 @@ public class DetailActivity extends BaseActivity {
             Bundle bundle = intent.getExtras();
             int id = bundle.getInt("id", -1);
             sourceUrl = bundle.getString("sourceUrl");
+            Movie.Video video = (Movie.Video) bundle.getSerializable("data");
+            //data.movie = video;
             VodInfo vodInfo = RoomDataManger.getVodInfo(sourceUrl, id);
             if (vodInfo != null) {
                 playIndex = vodInfo.playIndex;
             }
             if (id != -1) {
                 showLoading();
-                sourceViewModel.getDetail(sourceUrl, id);
+                sourceViewModel.videoResult.postValue(video);
             }
         }
     }
